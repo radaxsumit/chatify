@@ -1,6 +1,7 @@
-import { use } from 'react';
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
+import {generateToken} from "../lib/utils.js";
+
 
 export const signup = async (req, res) => {
   const { userName, email, password } = req.body;
@@ -31,7 +32,7 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    newUser = new User({
+    const newUser = new User({
         userName,
         email,
         password: hashedPassword
@@ -44,6 +45,7 @@ export const signup = async (req, res) => {
             _id: newUser._id,
             userName: newUser.userName,
             email: newUser.email,
+            password: newUser.password,
             profilePic: newUser.profilePic,
          });
 
