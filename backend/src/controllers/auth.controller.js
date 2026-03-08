@@ -5,11 +5,13 @@ import {generateToken} from "../lib/utils.js";
 
 export const signup = async (req, res) => {
   const { userName, email, password } = req.body;
+  const name = typeof userName === "string" ? userName.trim() : "";
+  const normalizedEmail = typeof email === "string" ? email.trim().toLocaleLowerCase() : "";
 
   // Here you would typically add logic to save the user to a database
   // For demonstration, we'll just return the received data
   try {
-    if (!userName || !email || !password) {
+    if (!name || !normalizedEmail || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
     if (password.length < 6) {
@@ -20,33 +22,38 @@ export const signup = async (req, res) => {
 
     // Simple email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
     // Here you would typically check if the email/User already exists in the database
 
-    const user = await User.findOne({ email });
+      const user = await User.findOne({ email: normalizedEmail });
     if (user) return res.status(400).json({ message: "Email already in use" })
     
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-        userName,
-        email,
+        userName:name,
+        email:normalizedEmail,
         password: hashedPassword
     })
 
     if(newUser) {
-        generateToken(newUser._id, res);
-        await newUser.save();
+        //before First Generate the Token and then save the user
+        // generateToken(newUser._id, res);
+        // await newUser.save();
+
+        //After first save the User then generate the Token , Persist user first, then issue the auth cookie
+        const savedUser = await newUser.save();
+        generateToken(savedUser_.id, res);
         res.status(201).json({ 
-            _id: newUser._id,
-            userName: newUser.userName,
-            email: newUser.email,
-            password: newUser.password,
-            profilePic: newUser.profilePic,
+            _id: savedUser._id,
+            userName: savedUser.userName,
+            email: savedUser.email,
+            password: savedUser.password,
+            profilePic: savedUser.profilePic,
          });
 
     } else {
