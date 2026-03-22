@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import {generateToken} from "../lib/utils.js";
+import {sendWelcomeEmail} from "../emails/emailHandlers.js";
+import {ENV} from "../lib/env.js";
 
 
 export const signup = async (req, res) => {
@@ -30,7 +32,7 @@ export const signup = async (req, res) => {
 
       const user = await User.findOne({ email: normalizedEmail });
     if (user) return res.status(400).json({ message: "Email already in use" })
-    
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -47,14 +49,20 @@ export const signup = async (req, res) => {
 
         //After first save the User then generate the Token , Persist user first, then issue the auth cookie
         const savedUser = await newUser.save();
-        generateToken(savedUser_.id, res);
-        res.status(201).json({ 
+        generateToken(savedUser._id, res);
+        res.status(201).json({
             _id: savedUser._id,
             userName: savedUser.userName,
             email: savedUser.email,
             password: savedUser.password,
             profilePic: savedUser.profilePic,
          });
+
+        try{
+            await sendWelcomeEmail(savedUser.email, savedUser.userName, ENV.CLIENTURL);
+        } catch (error) {
+            console.error("Failed to send email email", error);
+        }
 
     } else {
         return res.status(400).json({ message: "Error creating user" });

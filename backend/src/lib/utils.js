@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
+import {ENV} from "./env.js";
 
 export const generateToken = (userId, res) => {
-  const { JWT_SECRET } = process.env;
+  const { JWT_SECRET } = ENV;
   if(!JWT_SECRET) throw new Error("JWT_SECRET is not set");
 
   const token = jwt.sign({ userId }, JWT_SECRET, {
@@ -13,7 +14,9 @@ export const generateToken = (userId, res) => {
 
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     sameSite: "strict", // helps prevent CSRF attacks by ensuring the cookie is only sent in requests originating from the same site
-    secure: process.env.NODE_ENV === "development" ? false : true, // ensures the cookie is only sent over HTTPS in production
+    // secure: process.env.NODE_ENV === "development" ? false : true, // ensures the cookie is only sent over HTTPS in production (Before)
+    secure: ENV.NODE_ENV !== "development", // ensures the cookie is only sent over HTTPS in production (After more Simply)
   });
+
   return token;
 };
