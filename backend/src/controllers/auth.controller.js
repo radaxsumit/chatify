@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import {generateToken} from "../lib/utils.js";
 import {sendWelcomeEmail} from "../emails/emailHandlers.js";
 import {ENV} from "../lib/env.js";
+import cloudinary from "../lib/cloudinary.js";
 
 
 export const signup = async (req, res) => {
@@ -81,7 +82,7 @@ export const login = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({email});
         if (!user) return res.status(400).json({message: "Invalid credentials"});
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password)
@@ -105,4 +106,23 @@ export const login = async (req, res) => {
 export const logout = (_, res) => {
     res.cookie("token", "", {maxAge: 0});
     res.status(200).json({message: "Logged out successfully"});
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        const {profilePic} = req.body;
+        if (!profilePic) return res.status(400).json({message: "ProfilePic is required"});
+
+        const userId = req.user._id;
+
+        const uploadResponse = await cloudinary.uploader.upload(profilePic)  // Image uploading at cloudinary only, but we also want it to update at Database next will do it
+
+        const updatedUser = await User.findByIdAndUpdate(userId,{profilePic:uploadResponse.secure_url},{new:true});
+
+        res.status(200).json(updatedUser);
+
+    } catch (error) {
+        console.error("Error in update profilePic: :", error);
+        return res.status(500).json({message: "Internal server error"});
+    }
 }
