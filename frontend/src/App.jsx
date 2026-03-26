@@ -7,6 +7,8 @@ import SignupPage from "./pages/SignupPage.jsx";
 const App = () => {
     return (
         <div className="min-h-screen bg-slate-900 relative flex justify-center items-center p-4 overflow-hidden">
+            <div
+                className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.02)_1px,_transparent_1px)] bg-[size:40px_40px]"></div>
             <div className="min-h-screen bg-[#0f0f14] relative overflow-hidden">
                 <div
                     className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#12121c] to-[#0a0a0f] opacity-90"></div>
