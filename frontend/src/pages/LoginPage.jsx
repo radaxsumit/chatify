@@ -1,6 +1,8 @@
 import React from 'react'
+import {useAuthStore} from "../store/useAuthStore.js";
 
 const LoginPage = () => {
+    const {authUser, isloggedin, login} = useAuthStore();
     return (
         <div className="min-h-screen text-white flex items-center justify-center relative overflow-hidden">
             <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-10 py-6">
@@ -57,6 +59,7 @@ const LoginPage = () => {
 
                         {/* Button */}
                         <button
+                            onClick={login}
                             type="submit"
                             className="w-full py-3 rounded-full font-semibold bg-gradient-to-r from-purple-600 to-violet-500 hover:scale-[1.02] active:scale-95 transition-all">Sign
                             In

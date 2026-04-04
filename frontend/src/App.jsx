@@ -3,8 +3,15 @@ import {Route, Routes} from "react-router";
 import LoginPage from "./pages/LoginPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
+import {useAuthStore} from "./store/useAuthStore.js";
 
 const App = () => {
+
+        const {authUser, isloggedin, login} = useAuthStore();
+
+        console.log(authUser);
+        console.log(isloggedin);
+
     return (
         <div className="min-h-screen bg-slate-900 relative flex justify-center items-center p-4 overflow-hidden">
             <div className="fixed inset-0 z-0">
